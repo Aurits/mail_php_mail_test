@@ -25,7 +25,7 @@ private function fetchEmails()
 
         // Configure PHPMailer settings for IMAP with STARTTLS
         $mail->isIMAP();
-        $mail->Host = 'your-imap-server.com';
+        $mail->Host = 'webmail.mak.ac.ug';
         $mail->Port = 993;
         $mail->SMTPSecure = 'tls'; // STARTTLS
         $mail->SMTPAuth = true;
