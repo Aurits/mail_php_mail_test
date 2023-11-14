@@ -15,9 +15,5 @@ use App\Livewire\EmailComponent;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 
 Route::get('/emails', EmailComponent::class);
