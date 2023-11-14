@@ -10,11 +10,12 @@
 </head>
 
 <body>
-    @yield('content')
-    <!-- This is where Livewire components will be rendered -->
+
+    {{ $slot }}
 
     <!-- Include Livewire scripts at the end of the body -->
     @livewireScripts
+    @stack('scripts')
 </body>
 
 </html>
