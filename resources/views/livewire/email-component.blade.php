@@ -14,6 +14,7 @@
     @error('fetchEmails')
         <p class="text-red-500">{{ $message }}</p>
     @enderror
+    @livewireScripts
 </div>
-@livewireScripts
+
 
