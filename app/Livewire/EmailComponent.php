@@ -26,7 +26,7 @@ class EmailComponent extends Component
             $mail->Host = 'webmail.mak.ac.ug';
             $mail->Port = 993;
             $mail->SMTPSecure = 'starttls'; // STARTTLS
-            $mail->SMTPAuth = true;
+            $mail->SMTPAuth = false;
             $mail->Username = 'ambrose.alanda@students.mak.ac.ug';//config('mail.imap_username'); // Use env variables or config
             $mail->Password = 'Gloria11111.@'; //config('mail.imap_password'); // Use env variables or config
 
