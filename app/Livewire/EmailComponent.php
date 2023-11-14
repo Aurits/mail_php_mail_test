@@ -3,7 +3,6 @@
 namespace App\Livewire;
 
 use Livewire\Component;
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 class EmailComponent extends Component
@@ -12,47 +11,42 @@ class EmailComponent extends Component
 
     public function mount()
     {
-        // Fetch emails from the server and populate $emails
+        // Fetch emails from the server and populate $emails using imap functions
         $this->fetchEmails();
     }
 
     private function fetchEmails()
     {
         try {
-            $mail = new PHPMailer(true);
+            // Connect to the IMAP server
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
 
-            // Configure PHPMailer settings for IMAP with STARTTLS
-            $mail->isIMAP();
-            $mail->Host = 'webmail.mak.ac.ug';
-            $mail->Port = 993;
-            $mail->SMTPSecure = 'tls'; // STARTTLS
-            $mail->SMTPAuth = true;
-            $mail->Username = 'ambrose.alanda@students.mak.ac.ug';//config('mail.imap_username'); // Use env variables or config
-            $mail->Password = 'Gloria11111.@'; //config('mail.imap_password'); // Use env variables or config
-            $mail->SMTPDebug = 2; // or 3 for more detailed debugging
+            if ($mailbox) {
+                // Fetch emails
+                $emails = imap_search($mailbox, 'ALL');
 
+                if ($emails) {
+                    foreach ($emails as $emailId) {
+                        // Fetch email details
+                        $emailData = imap_fetchstructure($mailbox, $emailId);
 
-            // Connect to the server
-            $mail->connect();
+                        // Process email details if needed
+                        // ...
 
-            // Select the mailbox
-            $mail->select('INBOX');
+                        // Add the email subject to the $this->emails array
+                        $this->emails[] = imap_headerinfo($mailbox, $emailId)->subject;
+                    }
+                }
 
-            // Search for all emails
-            $emails = $mail->searchMailbox('ALL');
-
-            // Fetch email subjects (you can customize this based on your needs)
-            $this->emails = array_map(function ($email) {
-                return $email->subject;
-            }, $emails);
+                // Close the connection to the IMAP server
+                imap_close($mailbox);
+            } else {
+                // Handle connection error
+                throw new Exception('Unable to connect to the IMAP server.');
+            }
         } catch (Exception $e) {
             // Handle exceptions
             $this->addError('fetchEmails', 'Error fetching emails: ' . $e->getMessage());
-        } finally {
-            // Close the connection
-            if (isset($mail)) {
-                $mail->close();
-            }
         }
     }
 
