@@ -16,7 +16,7 @@ class EmailComponent extends Component
         $this->fetchEmails();
     }
 
-   // ...
+
 
 private function fetchEmails()
 {
@@ -51,7 +51,6 @@ private function fetchEmails()
         $this->addError('fetchEmails', 'Error fetching emails: ' . $e->getMessage());
     }
 }
-// ...
 
 
     public function render()
