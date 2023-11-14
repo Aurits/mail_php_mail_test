@@ -16,30 +16,43 @@ class EmailComponent extends Component
         $this->fetchEmails();
     }
 
-    private function fetchEmails()
-    {
-        // Your logic to fetch emails from the server using PHPMailer
-        try {
-            $mail = new PHPMailer(true);
-            // Configure PHPMailer settings
+   // ...
 
-            // Example: Fetch emails from the server
-            // $mail->pop3_server = 'pop.your-email-provider.com';
-            // $mail->pop3_port = 995;
-            // $mail->pop3_username = 'your-email@example.com';
-            // $mail->pop3_password = 'your-email-password';
-            // $mail->pop3_ssl = true;
+private function fetchEmails()
+{
+    try {
+        $mail = new PHPMailer(true);
 
-            // $mail->connect();
+        // Configure PHPMailer settings for IMAP with STARTTLS
+        $mail->isIMAP();
+        $mail->Host = 'your-imap-server.com';
+        $mail->Port = 993;
+        $mail->SMTPSecure = 'tls'; // STARTTLS
+        $mail->SMTPAuth = true;
+        $mail->Username = 'your-email@example.com';
+        $mail->Password = 'your-email-password';
 
-            // $emails = $mail->searchMailbox('ALL');
-            // $this->emails = $emails;
+        // Connect to the server
+        $mail->connect();
 
-        } catch (Exception $e) {
-            // Handle exceptions
-            // $this->addError('fetchEmails', 'Error fetching emails: ' . $e->getMessage());
-        }
+        // Select the mailbox
+        $mail->select('INBOX');
+
+        // Search for all emails
+        $emails = $mail->searchMailbox('ALL');
+
+        // Fetch email subjects (you can customize this based on your needs)
+        $this->emails = array_map(function ($email) {
+            return $email->subject;
+        }, $emails);
+
+    } catch (Exception $e) {
+        // Handle exceptions
+        $this->addError('fetchEmails', 'Error fetching emails: ' . $e->getMessage());
     }
+}
+// ...
+
 
     public function render()
     {
