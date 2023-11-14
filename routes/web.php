@@ -20,4 +20,4 @@ Route::get('/', function () {
 });
 
 
-Route::get('/emails', EmailComponent::class)->name('emails');
+Route::get('/emails', EmailComponent::class);
