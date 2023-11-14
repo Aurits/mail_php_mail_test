@@ -1,4 +1,3 @@
-{{-- resources/views/livewire/email-component.blade.php --}}
 <div>
     <h1>Emails</h1>
     @if ($emails !== null && count($emails) > 0)
