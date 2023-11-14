@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Livewire\EmailComponent;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +17,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/emails', 'EmailComponent')->name('emails');
+Route::get('/emails', function () {
+    return view('livewire.email-component');
+});
