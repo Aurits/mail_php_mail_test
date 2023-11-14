@@ -18,4 +18,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/emails',EmailComponent::class)->name('emails');
+Route::get('/emails', 'EmailComponent')->name('emails');
