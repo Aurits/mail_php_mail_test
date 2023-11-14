@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use PHPMailer\PHPMailer\Exception;
 
+
 class EmailComponent extends Component
 {
     public $emails = [];
