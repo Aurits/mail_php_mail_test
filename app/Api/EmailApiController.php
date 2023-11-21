@@ -12,7 +12,7 @@ class EmailApiController extends Controller
     {
         try {
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}", 'alandaambrose@students.mak.ac.ug', 'Gloria11111.@');
 
             if ($mailbox) {
                 // Fetch emails
@@ -32,7 +32,6 @@ class EmailApiController extends Controller
                             'date' => date('Y-m-d H:i:s', strtotime(imap_headerinfo($mailbox, $emailId)->date)),
                             'subject' => imap_headerinfo($mailbox, $emailId)->subject,
                             'message' => $this->getBody($mailbox, $emailId, $emailDetails),
-                            //'messagem' => imap_body($mailbox, $emailId),
                             'attachments' => $this->getAttachments($mailbox, $emailId, $emailDetails),
                             // Add other email details as needed
                         ];
@@ -62,8 +61,8 @@ class EmailApiController extends Controller
         // Check if the email has multiple parts (MIME)
         if ($emailDetails->type === 1) {
             // Fetch the HTML and plain text parts if available
-            $htmlPart = imap_fetchbody($mailbox, $emailId, '1.1');
-            $plainPart = imap_fetchbody($mailbox, $emailId, '1.2');
+            $htmlPart = $this->getBodyAlternative($mailbox, $emailId, $emailDetails, 'TEXT/HTML');
+            $plainPart = $this->getBodyAlternative($mailbox, $emailId, $emailDetails, 'TEXT/PLAIN');
 
             // Prioritize HTML over plain text
             $body = !empty($htmlPart) ? $htmlPart : $plainPart;
@@ -75,6 +74,65 @@ class EmailApiController extends Controller
         // Remove unwanted characters or formatting if needed
 
         return $body;
+    }
+
+    private function getBodyAlternative($mailbox, $emailId, $emailDetails, $mimetype)
+    {
+        // Initialize the body variable
+        $body = '';
+
+        // Fetch the body using the alternative method
+        $body = $this->get_part($mailbox, $emailId, $mimetype, $emailDetails);
+
+        return $body;
+    }
+
+    private function get_part($mailbox, $uid, $mimetype, $structure = false, $partNumber = false)
+    {
+        if (!$structure) {
+            $structure = imap_fetchstructure($mailbox, $uid, FT_UID);
+        }
+        if ($structure) {
+            if ($mimetype == $this->get_mime_type($structure)) {
+                if (!$partNumber) {
+                    $partNumber = 1;
+                }
+                $text = imap_fetchbody($mailbox, $uid, $partNumber, FT_UID);
+                switch ($structure->encoding) {
+                    case 3:
+                        return imap_base64($text);
+                    case 4:
+                        return imap_qprint($text);
+                    default:
+                        return $text;
+                }
+            }
+
+            // multipart
+            if ($structure->type == 1) {
+                foreach ($structure->parts as $index => $subStruct) {
+                    $prefix = "";
+                    if ($partNumber) {
+                        $prefix = $partNumber . ".";
+                    }
+                    $data = $this->get_part($mailbox, $uid, $mimetype, $subStruct, $prefix . ($index + 1));
+                    if ($data) {
+                        return $data;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private function get_mime_type($structure)
+    {
+        $primaryMimetype = ["TEXT", "MULTIPART", "MESSAGE", "APPLICATION", "AUDIO", "IMAGE", "VIDEO", "OTHER"];
+
+        if ($structure->subtype) {
+            return $primaryMimetype[(int)$structure->type] . "/" . $structure->subtype;
+        }
+        return "TEXT/PLAIN";
     }
 
     private function getAttachments($mailbox, $emailId, $emailDetails)
