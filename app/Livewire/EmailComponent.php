@@ -1,50 +1,58 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Livewire;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Livewire\Component;
 use PHPMailer\PHPMailer\Exception;
 
-class EmailApiController extends Controller
+
+class EmailComponent extends Component
 {
-    public function fetchEmails()
+    public $emails = [];
+
+    public function mount()
+    {
+        // Fetch emails from the server and populate $emails using imap functions
+        $this->fetchEmails();
+    }
+
+    private function fetchEmails()
     {
         try {
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'alandaambrose@students.mak.ac.ug', 'Gloria11111.@');
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
 
             if ($mailbox) {
                 // Fetch emails
                 $emails = imap_search($mailbox, 'ALL');
-                $emailData = [];
 
                 if ($emails) {
                     foreach ($emails as $emailId) {
                         // Fetch email details
-                        $emailDetails = imap_fetchstructure($mailbox, $emailId);
+                        $emailData = imap_fetchstructure($mailbox, $emailId);
 
-                        // Add email details to the array
-                        $emailData[] = [
-                            'subject' => imap_headerinfo($mailbox, $emailId)->subject,
-                            'message' => imap_body($mailbox, $emailId),
-                            // Add other email details as needed
-                        ];
+                        // Process email details if needed
+                        // ...
+
+                        // Add the email subject to the $this->emails array
+                        $this->emails[] = imap_headerinfo($mailbox, $emailId)->subject;
                     }
                 }
 
                 // Close the connection to the IMAP server
                 imap_close($mailbox);
-
-                // Return the email data as JSON
-                return response()->json($emailData);
             } else {
                 // Handle connection error
                 throw new Exception('Unable to connect to the IMAP server.');
             }
         } catch (Exception $e) {
             // Handle exceptions
-            return response()->json(['error' => 'Error fetching emails: ' . $e->getMessage()], 500);
+            $this->addError('fetchEmails', 'Error fetching emails: ' . $e->getMessage());
         }
+    }
+
+    public function render()
+    {
+        return view('livewire.email-component', ['emails' => $this->emails]);
     }
 }
