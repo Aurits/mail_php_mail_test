@@ -20,4 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::get('/fetch-emails', [EmailApiController::class, 'fetchEmails']);
+// Route::get('/fetch-emails', [EmailApiController::class, 'fetchEmails']);
