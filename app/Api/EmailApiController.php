@@ -27,7 +27,7 @@ class EmailApiController extends Controller
                         // Add email details to the array
                         $emailData[] = [
                             'subject' => imap_headerinfo($mailbox, $emailId)->subject,
-                            'message' => imap_body($mailbox, $emailId),
+                            // 'message' => imap_body($mailbox, $emailId),
                             // Add other email details as needed
                         ];
                     }
