@@ -41,6 +41,12 @@ class EmailApiController extends Controller
                 // Close the connection to the IMAP server
                 imap_close($mailbox);
 
+                // Convert all strings in $emailData to UTF-8
+                $emailData = array_map(function ($item) {
+                    return array_map([$this, 'convertToUTF8'], $item);
+                }, $emailData);
+
+
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
             } else {
@@ -74,6 +80,11 @@ class EmailApiController extends Controller
         // Remove unwanted characters or formatting if needed
 
         return $body;
+    }
+    // Add this method to convert a string to UTF-8
+    private function convertToUTF8($string)
+    {
+        return mb_convert_encoding($string, 'UTF-8', mb_detect_encoding($string));
     }
 
     private function getBodyAlternative($mailbox, $emailId, $emailDetails, $mimetype)
