@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Api;
 
 use App\Http\Controllers\Controller;
@@ -11,12 +12,17 @@ class EmailApiController extends Controller
     public function fetchEmails()
     {
         try {
+            // Set the default time zone
+            date_default_timezone_set('UTC');
+
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}", '', '');
 
             if ($mailbox) {
-                // Fetch emails
-                $emails = imap_search($mailbox, 'ALL');
+                // Fetch emails and sort by date
+                $emails = imap_search($mailbox, 'ALL', SE_UID, 'UTF-8');
+                rsort($emails);
+
                 $emailData = [];
 
                 if ($emails) {
@@ -26,11 +32,11 @@ class EmailApiController extends Controller
 
                         // Add email details to the array
                         $emailData[] = [
-                            'from' => imap_headerinfo($mailbox, $emailId)->fromaddress,
-                            'to' => imap_headerinfo($mailbox, $emailId)->toaddress,
-                            'reply_to' => imap_headerinfo($mailbox, $emailId)->reply_toaddress,
+                            'from' => $this->convertToUTF8(imap_headerinfo($mailbox, $emailId)->fromaddress),
+                            'to' => $this->convertToUTF8(imap_headerinfo($mailbox, $emailId)->toaddress),
+                            'reply_to' => $this->convertToUTF8(imap_headerinfo($mailbox, $emailId)->reply_toaddress),
                             'date' => date('Y-m-d H:i:s', strtotime(imap_headerinfo($mailbox, $emailId)->date)),
-                            'subject' => imap_headerinfo($mailbox, $emailId)->subject,
+                            'subject' => $this->convertToUTF8(imap_headerinfo($mailbox, $emailId)->subject),
                             'message' => $this->getBody($mailbox, $emailId, $emailDetails),
                             'attachments' => $this->getAttachments($mailbox, $emailId, $emailDetails),
                             // Add other email details as needed
@@ -43,7 +49,6 @@ class EmailApiController extends Controller
 
                 // Convert all strings in $emailData to UTF-8
                 $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
-
 
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
@@ -79,8 +84,7 @@ class EmailApiController extends Controller
 
         return $body;
     }
-    // Add this method to convert a string to UTF-8
-
+    // Add this method to convert a string or array to UTF-8
     private function convertToUTF8Recursive($item)
     {
         if (is_array($item)) {
