@@ -21,7 +21,7 @@ class EmailApiController extends Controller
 
             if ($mailbox) {
                 // Fetch emails and sort by date
-                $emails = imap_search($mailbox, 'ALL', SE_UID);
+                $emails = imap_search($mailbox, 'ALL');
                 rsort($emails);
 
                 $emailData = [];
@@ -29,7 +29,7 @@ class EmailApiController extends Controller
                 if ($emails) {
                     foreach ($emails as $emailId) {
                         // Fetch email details
-                        $emailDetails = imap_fetchstructure($mailbox, $emailId, FT_UID);
+                        $emailDetails = imap_fetchstructure($mailbox, $emailId);
 
                         // Fetch additional headers, including Message-ID
                         $headers = imap_headerinfo($mailbox, $emailId);
@@ -55,7 +55,7 @@ class EmailApiController extends Controller
                 imap_close($mailbox);
 
                 // Convert all strings in $emailData to UTF-8
-                $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
+                // $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
 
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
