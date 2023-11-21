@@ -21,7 +21,7 @@ class EmailApiController extends Controller
 
             if ($mailbox) {
                 // Fetch emails and sort by date
-                $emails = imap_search($mailbox, 'ALL', SE_UID, 'UTF-8');
+                $emails = imap_search($mailbox, 'ALL');
                 rsort($emails);
 
                 $emailData = [];
