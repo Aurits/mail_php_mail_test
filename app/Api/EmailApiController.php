@@ -32,7 +32,7 @@ class EmailApiController extends Controller
                             'date' => date('Y-m-d H:i:s', strtotime(imap_headerinfo($mailbox, $emailId)->date)),
                             'subject' => imap_headerinfo($mailbox, $emailId)->subject,
                             'message' => $this->getBody($mailbox, $emailId, $emailDetails),
-                            'messagem' => imap_body($mailbox, $emailId),
+                            //'message' => imap_body($mailbox, $emailId),
                             'attachments' => $this->getAttachments($mailbox, $emailId, $emailDetails),
                             // Add other email details as needed
                         ];
@@ -54,6 +54,7 @@ class EmailApiController extends Controller
         }
     }
 
+    // Modify the getBody function
     private function getBody($mailbox, $emailId, $emailDetails)
     {
         // Initialize the body variable
@@ -61,12 +62,20 @@ class EmailApiController extends Controller
 
         // Check if the email has multiple parts (MIME)
         if ($emailDetails->type === 1) {
-            // Fetch the HTML and plain text parts if available
-            $htmlPart = imap_fetchbody($mailbox, $emailId, '1.1');
-            $plainPart = imap_fetchbody($mailbox, $emailId, '1.2');
+            // Loop through each part of the email
+            foreach ($emailDetails->parts as $partId => $part) {
+                // Check if the part is plain text
+                if ($part->subtype === 'PLAIN') {
+                    // Fetch the plain text part
+                    $body = imap_fetchbody($mailbox, $emailId, $partId + 1);
 
-            // Prioritize HTML over plain text
-            $body = !empty($htmlPart) ? $htmlPart : $plainPart;
+                    // Decode the content if needed (depends on the encoding)
+                    $body = $this->decodeContent($body, $part->encoding);
+
+                    // Break the loop after finding the plain text part
+                    break;
+                }
+            }
         } else {
             // Fetch the body for non-MIME emails
             $body = imap_body($mailbox, $emailId);
@@ -76,6 +85,32 @@ class EmailApiController extends Controller
 
         return $body;
     }
+
+    // Add a function to decode content if needed
+    private function decodeContent($content, $encoding)
+    {
+        switch ($encoding) {
+            case 0: // 7BIT
+            case 1: // 8BIT
+                // No decoding needed for 7BIT and 8BIT
+                return $content;
+            case 2: // BINARY
+                // May need decoding depending on the content
+                return $content;
+            case 3: // BASE64
+                // Decode BASE64-encoded content
+                return base64_decode($content);
+            case 4: // QUOTED-PRINTABLE
+                // Decode Quoted-Printable content
+                return quoted_printable_decode($content);
+            case 5: // OTHER
+                // You may need to handle other encodings based on your requirements
+                return $content;
+            default:
+                return $content;
+        }
+    }
+
 
     private function getAttachments($mailbox, $emailId, $emailDetails)
     {
