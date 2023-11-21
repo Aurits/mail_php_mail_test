@@ -95,6 +95,11 @@ class EmailApiController extends Controller
         }
     }
 
+    private function convertToUTF8($string)
+    {
+        return mb_convert_encoding($string, 'UTF-8', mb_detect_encoding($string));
+    }
+
     private function getBodyAlternative($mailbox, $emailId, $emailDetails, $mimetype)
     {
         // Initialize the body variable
