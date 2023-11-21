@@ -80,13 +80,13 @@ class EmailApiController extends Controller
         return $body;
     }
     // Add this method to convert a string to UTF-8
-    // Add this method to convert a string or array to UTF-8
+
     private function convertToUTF8Recursive($item)
     {
         if (is_array($item)) {
             return array_map([$this, 'convertToUTF8Recursive'], $item);
         } else {
-            return mb_convert_encoding($item, 'UTF-8', mb_detect_encoding($item));
+            return mb_convert_encoding($item, 'UTF-8', mb_detect_encoding($item, 'UTF-8, ISO-8859-1', true));
         }
     }
 
