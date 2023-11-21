@@ -21,7 +21,7 @@ class EmailApiController extends Controller
 
             if ($mailbox) {
                 // Fetch emails and sort by date
-                $emails = imap_search($mailbox, 'ALL');
+                $emails = imap_search($mailbox, 'ALL', SE_UID);
                 rsort($emails);
 
                 $emailData = [];
@@ -29,7 +29,7 @@ class EmailApiController extends Controller
                 if ($emails) {
                     foreach ($emails as $emailId) {
                         // Fetch email details
-                        $emailDetails = imap_fetchstructure($mailbox, $emailId);
+                        $emailDetails = imap_fetchstructure($mailbox, $emailId, FT_UID);
 
                         // Fetch additional headers, including Message-ID
                         $headers = imap_headerinfo($mailbox, $emailId);
