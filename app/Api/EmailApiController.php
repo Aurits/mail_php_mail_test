@@ -31,13 +31,19 @@ class EmailApiController extends Controller
                         // Fetch email details
                         $emailDetails = imap_fetchstructure($mailbox, $emailId);
 
-                        // Add email details to the array
-                        $emailData[] = [
-                            'from' => $this->convertToUTF8(imap_headerinfo($mailbox, $emailId)->fromaddress),
-                            'to' => $this->convertToUTF8(imap_headerinfo($mailbox, $emailId)->toaddress),
-                            'reply_to' => $this->convertToUTF8(imap_headerinfo($mailbox, $emailId)->reply_toaddress),
-                            'date' => date('Y-m-d H:i:s', strtotime(imap_headerinfo($mailbox, $emailId)->date)),
-                            'subject' => $this->convertToUTF8(imap_headerinfo($mailbox, $emailId)->subject),
+                        // Fetch additional headers, including Message-ID
+                        $headers = imap_headerinfo($mailbox, $emailId);
+
+                        // Extract Message-ID
+                        $messageId = $headers->message_id;
+
+                        // Add email details to the array using Message-ID as a key
+                        $emailData[$messageId] = [
+                            'from' => $this->convertToUTF8($headers->fromaddress),
+                            'to' => $this->convertToUTF8($headers->toaddress),
+                            'reply_to' => $this->convertToUTF8($headers->reply_toaddress),
+                            'date' => date('Y-m-d H:i:s', strtotime($headers->date)),
+                            'subject' => $this->convertToUTF8($headers->subject),
                             'message' => $this->getBody($mailbox, $emailId, $emailDetails),
                             'attachments' => $this->getAttachments($mailbox, $emailId, $emailDetails),
                             // Add other email details as needed
