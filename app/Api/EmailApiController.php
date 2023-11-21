@@ -42,9 +42,7 @@ class EmailApiController extends Controller
                 imap_close($mailbox);
 
                 // Convert all strings in $emailData to UTF-8
-                $emailData = array_map(function ($item) {
-                    return array_map([$this, 'convertToUTF8'], $item);
-                }, $emailData);
+                $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
 
 
                 // Return the email data as JSON
@@ -82,9 +80,14 @@ class EmailApiController extends Controller
         return $body;
     }
     // Add this method to convert a string to UTF-8
-    private function convertToUTF8($string)
+    // Add this method to convert a string or array to UTF-8
+    private function convertToUTF8Recursive($item)
     {
-        return mb_convert_encoding($string, 'UTF-8', mb_detect_encoding($string));
+        if (is_array($item)) {
+            return array_map([$this, 'convertToUTF8Recursive'], $item);
+        } else {
+            return mb_convert_encoding($item, 'UTF-8', mb_detect_encoding($item));
+        }
     }
 
     private function getBodyAlternative($mailbox, $emailId, $emailDetails, $mimetype)
