@@ -37,7 +37,7 @@ class EmailApiController extends Controller
                 imap_close($mailbox);
 
                 // Return the email data as JSON
-                return response()->json($emailData);
+                return response()->json(['emails' => $emailData]);
             } else {
                 // Handle connection error
                 throw new Exception('Unable to connect to the IMAP server.');
