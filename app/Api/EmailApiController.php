@@ -32,7 +32,7 @@ class EmailApiController extends Controller
                             'date' => date('Y-m-d H:i:s', strtotime(imap_headerinfo($mailbox, $emailId)->date)),
                             'subject' => imap_headerinfo($mailbox, $emailId)->subject,
                             'message' => $this->getBody($mailbox, $emailId, $emailDetails),
-                            'messagem' => imap_body($mailbox, $emailId),
+                            //'messagem' => imap_body($mailbox, $emailId),
                             'attachments' => $this->getAttachments($mailbox, $emailId, $emailDetails),
                             // Add other email details as needed
                         ];
