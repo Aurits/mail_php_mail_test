@@ -214,6 +214,8 @@ class EmailApiController extends Controller
 
         if (isset($part->disposition) && strtoupper($part->disposition) === 'ATTACHMENT') {
             $attachment['filename'] = isset($part->dparameters[0]->value) ? $part->dparameters[0]->value : 'Unknown';
+            //a link at webmail to download the attachment
+            $attachment['link'] = imap_fetchbody($mailbox, $emailId, $partNumber);
             // $attachment['content'] = $this->getAttachmentContent($mailbox, $emailId, $partNumber);
 
             // Decode Base64 content
