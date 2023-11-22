@@ -72,6 +72,16 @@ class EmailApiController extends Controller
         return $emailDetails;
     }
 
+    // Add this method to convert a string or array to UTF-8
+    private function convertToUTF8Recursive($item)
+    {
+        if (is_array($item)) {
+            return array_map([$this, 'convertToUTF8Recursive'], $item);
+        } else {
+            return mb_convert_encoding($item, 'UTF-8', mb_detect_encoding($item, 'UTF-8, ISO-8859-1', true));
+        }
+    }
+
     private function getBody($mailbox, $emailId, $emailDetails)
     {
         // Initialize the body variable
