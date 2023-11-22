@@ -255,4 +255,10 @@ class EmailApiController extends Controller
             ? $structure->parts[$partNumber - 1]->encoding
             : null;
     }
+    private function getAttachmentFilename($mailbox, $emailId, $partNumber)
+    {
+        return isset($this->getAttachmentContent($mailbox, $emailId, $partNumber)['filename'])
+            ? $this->getAttachmentContent($mailbox, $emailId, $partNumber)['filename']
+            : 'Unknown';
+    }
 }
