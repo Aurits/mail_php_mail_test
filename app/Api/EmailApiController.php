@@ -227,7 +227,7 @@ class EmailApiController extends Controller
         $baseUrl = 'https://webmail.mak.ac.ug/';
 
         // Generate the link to download the attachment
-        $attachmentLink = $baseUrl . '?task=mail&_frame=1&_mbox=INBOX&passed_id=' . $emailId . '&part=' . $partNumber . '$_action=get$_extwin=1';
+        $attachmentLink = $baseUrl . '?task=mail&_frame=1&_mbox=INBOX&passed_id=' . $emailId . '&part=' . $partNumber . '$_action=get';
 
         // If you want to open the link in a new window, you can append '_extwin=1' to the URL
         $attachmentLink .= '&_extwin=1';
