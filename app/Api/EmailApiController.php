@@ -125,7 +125,7 @@ class EmailApiController extends Controller
         }
 
         // Remove unwanted characters or formatting if needed
-        $body = str_replace(["\r", "\n"], '', $body);
+        $body = str_replace(["\r", "\n", "\""], '', $body);
 
         return $body;
     }
@@ -192,8 +192,72 @@ class EmailApiController extends Controller
 
     private function getAttachments($mailbox, $emailId, $emailDetails)
     {
-        // Your existing getAttachments function implementation here...
+        $attachments = [];
 
-        return [];
+        if (isset($emailDetails->parts) && count($emailDetails->parts)) {
+            foreach ($emailDetails->parts as $index => $part) {
+                $attachment = $this->processPart($mailbox, $emailId, $part, $index + 1);
+
+                if ($attachment) {
+                    $attachments[] = $attachment;
+                }
+            }
+        }
+
+        return $attachments;
+    }
+
+    private function processPart($mailbox, $emailId, $part, $partNumber)
+    {
+        $attachment = [];
+
+        if (isset($part->disposition) && strtoupper($part->disposition) === 'ATTACHMENT') {
+            $attachment['filename'] = isset($part->dparameters[0]->value) ? $part->dparameters[0]->value : 'Unknown';
+            $attachment['url'] = $this->getAttachmentUrl($mailbox, $emailId, $partNumber);
+        }
+
+        return $attachment;
+    }
+
+    private function getAttachmentUrl($mailbox, $emailId, $partNumber)
+    {
+        // Here, you can generate a URL pointing to the attachment.
+        // This could be a route or a direct path to the attachment file.
+        // Replace 'path/to/attachments/' with the actual path where your attachments are stored.
+        $attachmentPath = 'path/to/attachments/' . $this->getAttachmentFilename($mailbox, $emailId, $partNumber);
+
+        // Assuming you have a route that handles attachment retrieval, you can generate the URL like this:
+        // Replace 'attachment-route' with the actual route name or path in your application.
+        $attachmentUrl = route('attachment-route', ['path' => urlencode($attachmentPath)]);
+
+        return $attachmentUrl;
+    }
+
+    private function getAttachmentFilename($mailbox, $emailId, $partNumber)
+    {
+        return isset($this->getAttachmentContent($mailbox, $emailId, $partNumber)['filename'])
+            ? $this->getAttachmentContent($mailbox, $emailId, $partNumber)['filename']
+            : 'Unknown';
+    }
+
+    private function getAttachmentContent($mailbox, $emailId, $partNumber)
+    {
+        $attachmentContent = imap_fetchbody($mailbox, $emailId, $partNumber);
+
+        // Check if the encoding is base64
+        if ($this->getEncoding($mailbox, $emailId, $partNumber) == 'BASE64') {
+            $attachmentContent = base64_decode($attachmentContent);
+        }
+
+        return ['filename' => $this->getAttachmentFilename($mailbox, $emailId, $partNumber), 'content' => $attachmentContent];
+    }
+
+    private function getEncoding($mailbox, $emailId, $partNumber)
+    {
+        $structure = imap_fetchstructure($mailbox, $emailId);
+
+        return isset($structure->parts[$partNumber - 1]->encoding)
+            ? $structure->parts[$partNumber - 1]->encoding
+            : null;
     }
 }
