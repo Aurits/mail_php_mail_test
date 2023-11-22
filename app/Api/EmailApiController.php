@@ -226,16 +226,18 @@ class EmailApiController extends Controller
         // Replace 'webmail.mak.ac.ug' with the actual base URL of your webmail
         $baseUrl = 'https://webmail.mak.ac.ug/';
 
+        // Adjusting email ID by adding 2
+        $adjustedEmailId = $emailId + 2;
+
         // Generate the link to download the attachment
-        $attachmentLink = $baseUrl . '?_task=mail&_frame=1&_mbox=INBOX&_uid=' . $emailId . '&_part=' . $partNumber . '$_action=get';
-        // https://webmail.mak.ac.ug/?_task=mail&_frame=1&_mbox=INBOX&_uid=166&_part=2&_action=get&_extwin=1
-        // https://webmail.mak.ac.ug/?_task=mail&_frame=1&_mbox=INBOX&p_uid=164&part=2$_action=get&_extwin=1
+        $attachmentLink = $baseUrl . '?_task=mail&_frame=1&_mbox=INBOX&_uid=' . $adjustedEmailId . '&_part=' . $partNumber . '$_action=get';
 
         // If you want to open the link in a new window, you can append '_extwin=1' to the URL
         $attachmentLink .= '&_extwin=1';
 
         return $attachmentLink;
     }
+
 
     private function getAttachmentContent($mailbox, $emailId, $partNumber)
     {
