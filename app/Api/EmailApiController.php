@@ -208,13 +208,32 @@ class EmailApiController extends Controller
         return $attachments;
     }
 
+
+
+    private function getAttachmentUrl($mailbox, $emailId, $partNumber)
+    {
+        // Here, you can generate a URL pointing to the attachment.
+        // This could be a route or a direct path to the attachment file.
+        // Replace 'path/to/attachments/' with the actual path where your attachments are stored.
+        $attachmentPath = 'path/to/attachments/' . $this->getAttachmentFilename($mailbox, $emailId, $partNumber);
+
+        // Assuming you have a route that handles attachment retrieval, you can generate the URL like this:
+        // Replace 'attachment-route' with the actual route name or path in your application.
+        $attachmentUrl = route('attachment-route', ['path' => urlencode($attachmentPath)]);
+
+        // If you want to open the link in a new window, you can append '_extwin=1' to the URL
+        $attachmentUrl .= '&_extwin=1';
+
+        return $attachmentUrl;
+    }
+
     private function processPart($mailbox, $emailId, $part, $partNumber)
     {
         $attachment = [];
 
         if (isset($part->disposition) && strtoupper($part->disposition) === 'ATTACHMENT') {
             $attachment['filename'] = isset($part->dparameters[0]->value) ? $part->dparameters[0]->value : 'Unknown';
-            $attachment['content'] = $this->getAttachmentContent($mailbox, $emailId, $partNumber);
+            $attachment['url'] = $this->getAttachmentUrl($mailbox, $emailId, $partNumber);
         }
 
         return $attachment;
@@ -222,15 +241,11 @@ class EmailApiController extends Controller
 
     private function getAttachmentContent($mailbox, $emailId, $partNumber)
     {
-        $attachmentContent = imap_fetchbody($mailbox, $emailId, $partNumber);
-
-        // Check if the encoding is base64
-        if ($encoding = $this->getEncoding($mailbox, $emailId, $partNumber) == 'BASE64') {
-            $attachmentContent = base64_decode($attachmentContent);
-        }
-
-        return $attachmentContent;
+        // Instead of fetching the content, return the attachment URL directly
+        return $this->getAttachmentUrl($mailbox, $emailId, $partNumber);
     }
+
+
 
     private function getEncoding($mailbox, $emailId, $partNumber)
     {
