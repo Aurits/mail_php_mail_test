@@ -233,7 +233,7 @@ class EmailApiController extends Controller
 
         if (isset($part->disposition) && strtoupper($part->disposition) === 'ATTACHMENT') {
             $attachment['filename'] = isset($part->dparameters[0]->value) ? $part->dparameters[0]->value : 'Unknown';
-            $attachment['url'] = $this->getAttachmentUrl($mailbox, $emailId, $partNumber);
+            // $attachment['url'] = $this->getAttachmentUrl($mailbox, $emailId, $partNumber);
         }
 
         return $attachment;
