@@ -195,16 +195,16 @@ class EmailApiController extends Controller
     {
         $attachments = [];
 
-        if (isset($emailDetails->parts) && count($emailDetails->parts)) {
-            foreach ($emailDetails->parts as $index => $part) {
-                $attachment = $this->processPart($mailbox, $emailId, $part, $index + 1);
+        // if (isset($emailDetails->parts) && count($emailDetails->parts)) {
+        //     foreach ($emailDetails->parts as $index => $part) {
+        //         $attachment = $this->processPart($mailbox, $emailId, $part, $index + 1);
 
-                if ($attachment) {
-                    // Add attachment name and URL to the returned array
-                    $attachments[] = $attachment;
-                }
-            }
-        }
+        //         if ($attachment) {
+        //             // Add attachment name and URL to the returned array
+        //             $attachments[] = $attachment;
+        //         }
+        //     }
+        // }
 
         return $attachments;
     }
