@@ -55,7 +55,7 @@ class EmailApiController extends Controller
                 imap_close($mailbox);
 
                 // Convert all strings in $emailData to UTF-8
-                // $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
+                $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
 
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
