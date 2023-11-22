@@ -144,7 +144,7 @@ class EmailApiController extends Controller
                     if ($partNumber) {
                         $prefix = $partNumber . ".";
                     }
-                    $data = $this->get_part($mailbox, $uid, $mimetype, $subStruct, $prefix . ($index + 1));
+                    $data = $this->get_part($mailbox, $uid, $mimetype, $subStruct, $prefix . ($index));
                     if ($data) {
                         return $data;
                     }
