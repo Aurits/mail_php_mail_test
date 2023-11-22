@@ -39,7 +39,7 @@ class EmailApiController extends Controller
                 $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
 
                 // Strip HTML tags from the message content
-                //  $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
+                ////  $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
 
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
@@ -125,6 +125,7 @@ class EmailApiController extends Controller
         }
 
         // Remove unwanted characters or formatting if needed
+        $body = str_replace(["\r", "\n"], '', $body);
 
         return $body;
     }
