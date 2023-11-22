@@ -214,10 +214,10 @@ class EmailApiController extends Controller
 
         if (isset($part->disposition) && strtoupper($part->disposition) === 'ATTACHMENT') {
             $attachment['filename'] = isset($part->dparameters[0]->value) ? $part->dparameters[0]->value : 'Unknown';
-            $attachment['content'] = $this->getAttachmentContent($mailbox, $emailId, $partNumber);
+            // $attachment['content'] = $this->getAttachmentContent($mailbox, $emailId, $partNumber);
 
             // Decode Base64 content
-            $attachment['decoded_content'] = base64_decode($attachment['content']);
+            // $attachment['decoded_content'] = base64_decode($attachment['content']);
 
             // You can now use $attachment['decoded_content'] as needed
 
