@@ -14,7 +14,7 @@ class EmailApiController extends Controller
             date_default_timezone_set('Africa/Nairobi');
 
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", '', '');
 
             if ($mailbox) {
                 // Fetch emails
