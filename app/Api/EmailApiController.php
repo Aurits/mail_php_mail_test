@@ -233,7 +233,7 @@ class EmailApiController extends Controller
         $attachmentLink = $baseUrl . '?_task=mail&_frame=1&_mbox=INBOX&_uid=' . $adjustedEmailId . '&_part=' . $partNumber . '$_action=get';
 
         // If you want to open the link in a new window, you can append '_extwin=1' to the URL
-        $attachmentLink .= '&_extwin=1';
+        $attachmentLink .= '&_extwin=1&_mimewarning=1&_embed=1';
 
         return $attachmentLink;
     }
