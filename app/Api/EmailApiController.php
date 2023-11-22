@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use PHPMailer\PHPMailer\Exception;
 
+
 class EmailApiController extends Controller
 {
     public function fetchEmails()
@@ -13,9 +14,11 @@ class EmailApiController extends Controller
         try {
             date_default_timezone_set('Africa/Nairobi');
 
+            $request = new Request();
+
             // Retrieve username and password from the request
-            $username = Request::input('username');
-            $password = Request::input('password');
+            $username = $request->input('username');
+            $password = $request->input('password');
 
             // Connect to the IMAP server
             $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password);
