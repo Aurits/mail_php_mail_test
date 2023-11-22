@@ -12,11 +12,12 @@ class EmailApiController extends Controller
     {
         try {
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'alanda.ambrose@students.mak.ac.ug', 'Gloria11111.@');
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
 
             if ($mailbox) {
                 // Fetch emails
                 $emails = imap_search($mailbox, 'ALL');
+                rsort($emails);
                 $emailData = [];
 
                 if ($emails) {
