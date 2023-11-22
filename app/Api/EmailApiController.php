@@ -137,14 +137,14 @@ class EmailApiController extends Controller
     private function get_part($mailbox, $uid, $mimetype, $structure = false, $partNumber = false)
     {
         if (!$structure) {
-            $structure = imap_fetchstructure($mailbox, $uid, FT_UID);
+            $structure = imap_fetchstructure($mailbox, $uid);
         }
         if ($structure) {
             if ($mimetype == $this->get_mime_type($structure)) {
                 if (!$partNumber) {
                     $partNumber = 1;
                 }
-                $text = imap_fetchbody($mailbox, $uid, $partNumber, FT_UID);
+                $text = imap_fetchbody($mailbox, $uid, $partNumber);
                 switch ($structure->encoding) {
                     case 3:
                         return imap_base64($text);
