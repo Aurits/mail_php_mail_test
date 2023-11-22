@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,9 +11,8 @@ class EmailApiController extends Controller
     public function fetchEmails()
     {
         try {
-            date_default_timezone_set('Africa/Nairobi');
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'alandaambrose', '');
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'alanda.ambrose@students.mak.ac.ug', 'Gloria11111.@');
 
             if ($mailbox) {
                 // Fetch emails
@@ -32,7 +31,7 @@ class EmailApiController extends Controller
                             'reply_to' => imap_headerinfo($mailbox, $emailId)->reply_toaddress,
                             'date' => date('Y-m-d H:i:s', strtotime(imap_headerinfo($mailbox, $emailId)->date)),
                             'subject' => imap_headerinfo($mailbox, $emailId)->subject,
-                            'message' => imap_body($mailbox, $emailId),
+                            'message' => $this->getBody($mailbox, $emailId, $emailDetails),
                             'attachments' => $this->getAttachments($mailbox, $emailId, $emailDetails),
                             // Add other email details as needed
                         ];
@@ -54,7 +53,28 @@ class EmailApiController extends Controller
         }
     }
 
+    private function getBody($mailbox, $emailId, $emailDetails)
+    {
+        // Initialize the body variable
+        $body = '';
 
+        // Check if the email has multiple parts (MIME)
+        if ($emailDetails->type === 1) {
+            // Fetch the HTML and plain text parts if available
+            $htmlPart = imap_fetchbody($mailbox, $emailId, '1.1');
+            $plainPart = imap_fetchbody($mailbox, $emailId, '1.2');
+
+            // Prioritize HTML over plain text
+            $body = !empty($htmlPart) ? $htmlPart : $plainPart;
+        } else {
+            // Fetch the body for non-MIME emails
+            $body = imap_body($mailbox, $emailId);
+        }
+
+        // Remove unwanted characters or formatting if needed
+
+        return $body;
+    }
 
     private function getAttachments($mailbox, $emailId, $emailDetails)
     {
