@@ -113,6 +113,12 @@ class EmailApiController extends Controller
 
             // Prioritize HTML over plain text
             $body = !empty($htmlPart) ? $htmlPart : $plainPart;
+
+            // Decode HTML entities
+            $body = html_entity_decode($body);
+
+            // Ensure proper HTML structure
+            $body = '<html><head><meta charset="UTF-8"></head><body>' . $body . '</body></html>';
         } else {
             // Fetch the body for non-MIME emails
             $body = imap_body($mailbox, $emailId);
@@ -122,6 +128,7 @@ class EmailApiController extends Controller
 
         return $body;
     }
+
 
     private function getBodyAlternative($mailbox, $emailId, $emailDetails, $mimetype)
     {
