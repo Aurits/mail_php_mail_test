@@ -34,11 +34,10 @@ class EmailApiController extends Controller
                         // Fetch additional headers, including Message-ID
                         $headers = imap_headerinfo($mailbox, $emailId);
 
-                        // Extract Message-ID
-                        $messageId = $headers->message_id;
+
 
                         // Add email details to the array using Message-ID as a key
-                        $emailData[$messageId] = [
+                        $emailData[] = [
                             'from' => $this->convertToUTF8($headers->fromaddress),
                             'to' => $this->convertToUTF8($headers->toaddress),
                             'reply_to' => $this->convertToUTF8($headers->reply_toaddress),
