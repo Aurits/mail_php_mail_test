@@ -215,19 +215,24 @@ class EmailApiController extends Controller
         if (isset($part->disposition) && strtoupper($part->disposition) === 'ATTACHMENT') {
             $attachment['filename'] = isset($part->dparameters[0]->value) ? $part->dparameters[0]->value : 'Unknown';
             //a link at webmail to download the attachment
-            $attachment['link'] = "webmail.mak.ac.ug/src/download.php?mailbox=INBOX&passed_id=$emailId&part=$partNumber";
-            // $attachment['content'] = $this->getAttachmentContent($mailbox, $emailId, $partNumber);
-
-            // Decode Base64 content
-            // $attachment['decoded_content'] = base64_decode($attachment['content']);
-
-            // You can now use $attachment['decoded_content'] as needed
-
-            // For example, if you want to save the decoded content to a file
-            // file_put_contents('path/to/save/' . $attachment['filename'], $attachment['decoded_content']);
+            $attachment['url'] = $this->getAttachmentUrl($mailbox, $emailId, $partNumber);
         }
 
         return $attachment;
+    }
+
+    private function getAttachmentUrl($mailbox, $emailId, $partNumber)
+    {
+        // Replace 'webmail.mak.ac.ug' with the actual base URL of your webmail
+        $baseUrl = 'https://webmail.mak.ac.ug/';
+
+        // Generate the link to download the attachment
+        $attachmentLink = $baseUrl . 'src/download.php?mailbox=INBOX&passed_id=' . $emailId . '&part=' . $partNumber;
+
+        // If you want to open the link in a new window, you can append '_extwin=1' to the URL
+        $attachmentLink .= '&_extwin=1';
+
+        return $attachmentLink;
     }
 
     private function getAttachmentContent($mailbox, $emailId, $partNumber)
