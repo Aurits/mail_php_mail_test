@@ -19,6 +19,7 @@ class EmailApiController extends Controller
             if ($mailbox) {
                 // Fetch emails
                 $emails = imap_search($mailbox, 'ALL');
+                rsort($emails);
                 $emailData = [];
 
                 if ($emails) {
@@ -33,6 +34,9 @@ class EmailApiController extends Controller
 
                 // Close the connection to the IMAP server
                 imap_close($mailbox);
+
+                // Convert all strings in $emailData to UTF-8
+                $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
 
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
