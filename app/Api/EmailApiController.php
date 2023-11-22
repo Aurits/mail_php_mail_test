@@ -237,26 +237,4 @@ class EmailApiController extends Controller
 
         return $attachmentLink;
     }
-
-
-    private function getAttachmentContent($mailbox, $emailId, $partNumber)
-    {
-        $attachmentContent = imap_fetchbody($mailbox, $emailId, $partNumber);
-
-        // Check if the encoding is base64
-        if ($encoding = $this->getEncoding($mailbox, $emailId, $partNumber) == 'BASE64') {
-            $attachmentContent = base64_decode($attachmentContent);
-        }
-
-        return $attachmentContent;
-    }
-
-    private function getEncoding($mailbox, $emailId, $partNumber)
-    {
-        $structure = imap_fetchstructure($mailbox, $emailId);
-
-        return isset($structure->parts[$partNumber - 1]->encoding)
-            ? $structure->parts[$partNumber - 1]->encoding
-            : null;
-    }
 }
