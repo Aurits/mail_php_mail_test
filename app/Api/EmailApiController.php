@@ -118,7 +118,7 @@ class EmailApiController extends Controller
             $body = html_entity_decode($body);
 
             // Ensure proper HTML structure
-            $body = '<html><head><meta charset="UTF-8"></head><body>' . $body . '</body></html>';
+            //$body = '<html><head><meta charset="UTF-8"></head><body>' . $body . '</body></html>';
         } else {
             // Fetch the body for non-MIME emails
             $body = imap_body($mailbox, $emailId);
