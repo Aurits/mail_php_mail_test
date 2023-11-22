@@ -14,7 +14,7 @@ class EmailApiController extends Controller
         try {
             date_default_timezone_set('Africa/Nairobi');
 
-            $request = new Request();
+            $request = Request::createFromGlobals();
 
             // Retrieve username and password from the request
             $username = $request->input('username');
