@@ -13,8 +13,12 @@ class EmailApiController extends Controller
         try {
             date_default_timezone_set('Africa/Nairobi');
 
+            // Retrieve username and password from the request
+            $username = Request::input('username');
+            $password = Request::input('password');
+
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password);
 
             if ($mailbox) {
                 // Fetch emails
