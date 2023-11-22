@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,13 +11,14 @@ class EmailApiController extends Controller
     public function fetchEmails()
     {
         try {
+            date_default_timezone_set('Africa/Nairobi');
+
             // Connect to the IMAP server
             $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
 
             if ($mailbox) {
                 // Fetch emails
                 $emails = imap_search($mailbox, 'ALL');
-                rsort($emails);
                 $emailData = [];
 
                 if ($emails) {
@@ -26,16 +27,7 @@ class EmailApiController extends Controller
                         $emailDetails = imap_fetchstructure($mailbox, $emailId);
 
                         // Add email details to the array
-                        $emailData[] = [
-                            'from' => imap_headerinfo($mailbox, $emailId)->fromaddress,
-                            'to' => imap_headerinfo($mailbox, $emailId)->toaddress,
-                            'reply_to' => imap_headerinfo($mailbox, $emailId)->reply_toaddress,
-                            'date' => date('Y-m-d H:i:s', strtotime(imap_headerinfo($mailbox, $emailId)->date)),
-                            'subject' => imap_headerinfo($mailbox, $emailId)->subject,
-                            'message' => $this->getBody($mailbox, $emailId, $emailDetails),
-                            'attachments' => $this->getAttachments($mailbox, $emailId, $emailDetails),
-                            // Add other email details as needed
-                        ];
+                        $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails);
                     }
                 }
 
@@ -54,6 +46,32 @@ class EmailApiController extends Controller
         }
     }
 
+    private function getEmailDetails($mailbox, $emailId, $emailDetails)
+    {
+        // Fetch email headers
+        $headers = imap_headerinfo($mailbox, $emailId);
+
+        // Get email body
+        $body = $this->getBody($mailbox, $emailId, $emailDetails);
+
+        // Get attachments
+        $attachments = $this->getAttachments($mailbox, $emailId, $emailDetails);
+
+        // Assemble email details
+        $emailDetails = [
+            'from' => $headers->fromaddress,
+            'to' => $headers->toaddress,
+            'reply_to' => $headers->reply_toaddress,
+            'date' => date('Y-m-d H:i:s', strtotime($headers->date)),
+            'subject' => $headers->subject,
+            'message' => $body,
+            'attachments' => $attachments,
+            // Add other email details as needed
+        ];
+
+        return $emailDetails;
+    }
+
     private function getBody($mailbox, $emailId, $emailDetails)
     {
         // Initialize the body variable
@@ -62,8 +80,8 @@ class EmailApiController extends Controller
         // Check if the email has multiple parts (MIME)
         if ($emailDetails->type === 1) {
             // Fetch the HTML and plain text parts if available
-            $htmlPart = imap_fetchbody($mailbox, $emailId, '1.1');
-            $plainPart = imap_fetchbody($mailbox, $emailId, '1.2');
+            $htmlPart = $this->getBodyAlternative($mailbox, $emailId, $emailDetails, 'TEXT/HTML');
+            $plainPart = $this->getBodyAlternative($mailbox, $emailId, $emailDetails, 'TEXT/PLAIN');
 
             // Prioritize HTML over plain text
             $body = !empty($htmlPart) ? $htmlPart : $plainPart;
@@ -77,29 +95,69 @@ class EmailApiController extends Controller
         return $body;
     }
 
-    private function getAttachments($mailbox, $emailId, $emailDetails)
+    private function getBodyAlternative($mailbox, $emailId, $emailDetails, $mimetype)
     {
-        // Initialize the attachments array
-        $attachments = [];
+        // Initialize the body variable
+        $body = '';
 
-        // Check if the email has multiple parts (MIME)
-        if ($emailDetails->type === 1) {
-            // Loop through each part of the email
-            foreach ($emailDetails->parts as $partId => $part) {
-                // Check if the part has a filename (indicating an attachment)
-                if (isset($part->disposition) && strtoupper($part->disposition) === 'ATTACHMENT') {
-                    // Fetch the attachment
-                    $attachment = [
-                        'filename' => $part->dparameters[0]->value,
-                        'content' => imap_fetchbody($mailbox, $emailId, $partId + 1),
-                    ];
+        // Fetch the body using the alternative method
+        $body = $this->get_part($mailbox, $emailId, $mimetype, $emailDetails);
 
-                    // Add the attachment to the attachments array
-                    $attachments[] = $attachment;
+        return $body;
+    }
+
+    private function get_part($mailbox, $uid, $mimetype, $structure = false, $partNumber = false)
+    {
+        if (!$structure) {
+            $structure = imap_fetchstructure($mailbox, $uid, FT_UID);
+        }
+        if ($structure) {
+            if ($mimetype == $this->get_mime_type($structure)) {
+                if (!$partNumber) {
+                    $partNumber = 1;
+                }
+                $text = imap_fetchbody($mailbox, $uid, $partNumber, FT_UID);
+                switch ($structure->encoding) {
+                    case 3:
+                        return imap_base64($text);
+                    case 4:
+                        return imap_qprint($text);
+                    default:
+                        return $text;
+                }
+            }
+
+            // multipart
+            if ($structure->type == 1) {
+                foreach ($structure->parts as $index => $subStruct) {
+                    $prefix = "";
+                    if ($partNumber) {
+                        $prefix = $partNumber . ".";
+                    }
+                    $data = $this->get_part($mailbox, $uid, $mimetype, $subStruct, $prefix . ($index + 1));
+                    if ($data) {
+                        return $data;
+                    }
                 }
             }
         }
+        return false;
+    }
 
-        return $attachments;
+    private function get_mime_type($structure)
+    {
+        $primaryMimetype = ["TEXT", "MULTIPART", "MESSAGE", "APPLICATION", "AUDIO", "IMAGE", "VIDEO", "OTHER"];
+
+        if ($structure->subtype) {
+            return $primaryMimetype[(int)$structure->type] . "/" . $structure->subtype;
+        }
+        return "TEXT/PLAIN";
+    }
+
+    private function getAttachments($mailbox, $emailId, $emailDetails)
+    {
+        // Your existing getAttachments function implementation here...
+
+        return [];
     }
 }
