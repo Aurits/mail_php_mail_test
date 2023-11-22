@@ -221,16 +221,31 @@ class EmailApiController extends Controller
 
     private function getAttachmentUrl($mailbox, $emailId, $partNumber)
     {
-        // Here, you can generate a URL pointing to the attachment.
-        // This could be a route or a direct path to the attachment file.
-        // Replace 'path/to/attachments/' with the actual path where your attachments are stored.
-        $attachmentPath = 'path/to/attachments/' . $this->getAttachmentFilename($mailbox, $emailId, $partNumber);
+        try {
+            $attachmentFilename = $this->getAttachmentFilename($mailbox, $emailId, $partNumber);
 
-        // Assuming you have a route that handles attachment retrieval, you can generate the URL like this:
-        // Replace 'attachment-route' with the actual route name or path in your application.
-        $attachmentUrl = route('attachment-route', ['path' => urlencode($attachmentPath)]);
+            if ($attachmentFilename === 'Unknown') {
+                throw new Exception('Unable to determine attachment filename.');
+            }
 
-        return $attachmentUrl;
+            $attachmentContent = $this->getAttachmentContent($mailbox, $emailId, $partNumber);
+
+            if (empty($attachmentContent) || !isset($attachmentContent['content'])) {
+                throw new Exception('Unable to fetch attachment content.');
+            }
+
+            $attachmentPath = 'path/to/attachments/' . $attachmentFilename;
+
+            // Assuming you have a route that handles attachment retrieval, you can generate the URL like this:
+            // Replace 'attachment-route' with the actual route name or path in your application.
+            $attachmentUrl = route('attachment-route', ['path' => urlencode($attachmentPath)]);
+
+            return $attachmentUrl;
+        } catch (Exception $e) {
+            // Handle the exception (e.g., log the error, return a default URL, etc.).
+            error_log('Error in getAttachmentUrl: ' . $e->getMessage());
+            return 'error_attachment_url';
+        }
     }
 
     private function getAttachmentFilename($mailbox, $emailId, $partNumber)
@@ -242,15 +257,23 @@ class EmailApiController extends Controller
 
     private function getAttachmentContent($mailbox, $emailId, $partNumber)
     {
-        $attachmentContent = imap_fetchbody($mailbox, $emailId, $partNumber);
+        try {
+            $attachmentContent = imap_fetchbody($mailbox, $emailId, $partNumber);
 
-        // Check if the encoding is base64
-        if ($this->getEncoding($mailbox, $emailId, $partNumber) == 'BASE64') {
-            $attachmentContent = base64_decode($attachmentContent);
+            // Check if the encoding is base64
+            if ($this->getEncoding($mailbox, $emailId, $partNumber) == 'BASE64') {
+                $attachmentContent = base64_decode($attachmentContent);
+            }
+
+            return ['filename' => $this->getAttachmentFilename($mailbox, $emailId, $partNumber), 'content' => $attachmentContent];
+        } catch (Exception $e) {
+            // Handle the exception (e.g., log the error, return a default content, etc.).
+            error_log('Error in getAttachmentContent: ' . $e->getMessage());
+            return ['filename' => 'Unknown', 'content' => 'error_attachment_content'];
         }
-
-        return ['filename' => $this->getAttachmentFilename($mailbox, $emailId, $partNumber), 'content' => $attachmentContent];
     }
+
+    // ... (existing code)
 
     private function getEncoding($mailbox, $emailId, $partNumber)
     {
