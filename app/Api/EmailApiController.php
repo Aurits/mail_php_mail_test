@@ -38,6 +38,9 @@ class EmailApiController extends Controller
                 // Convert all strings in $emailData to UTF-8
                 $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
 
+                // Strip HTML tags from the message content
+                $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
+
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
             } else {
@@ -83,6 +86,17 @@ class EmailApiController extends Controller
             return array_map([$this, 'convertToUTF8Recursive'], $item);
         } else {
             return mb_convert_encoding($item, 'UTF-8', mb_detect_encoding($item, 'UTF-8, ISO-8859-1', true));
+        }
+    }
+
+
+    // Add this method to strip HTML tags from a string or array
+    private function stripHtmlTagsRecursive($item)
+    {
+        if (is_array($item)) {
+            return array_map([$this, 'stripHtmlTagsRecursive'], $item);
+        } else {
+            return strip_tags($item);
         }
     }
 
