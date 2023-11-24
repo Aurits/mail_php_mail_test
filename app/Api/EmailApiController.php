@@ -22,7 +22,7 @@ class EmailApiController extends Controller
 
             // Connect to the IMAP server
             // $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password);
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", "givious.musiimennt@students.mak.ac.ug", "G@cc1998");
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", "alandaambrose@students.mak.ac.ug", "Gloria11111.@");
 
             if ($mailbox) {
                 // Fetch emails
