@@ -30,10 +30,6 @@ class EmailComponent extends Component
                     foreach ($emails as $emailId) {
                         // Fetch email details
                         $emailData = imap_fetchstructure($mailbox, $emailId);
-
-                        // Process email details if needed
-                        // ...
-
                         // Add the email subject to the $this->emails array
                         $this->emails[] = imap_headerinfo($mailbox, $emailId)->subject;
                     }
