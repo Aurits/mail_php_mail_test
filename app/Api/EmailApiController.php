@@ -201,7 +201,7 @@ class EmailApiController extends Controller
 
     private function getAttachments($mailbox, $emailId, $emailDetails)
     {
-        $attachments = [];
+        $attachments = null;
 
         if (isset($emailDetails->parts) && count($emailDetails->parts)) {
             foreach ($emailDetails->parts as $index => $part) {
@@ -209,7 +209,7 @@ class EmailApiController extends Controller
 
                 if ($attachment) {
                     // Concatenate filename and URL and add to the attachments array
-                    $attachments[] = $attachment['filename'] . ': ' . $attachment['url'];
+                    $attachments = $attachment['filename'] . ': ' . $attachment['url'];
                 }
             }
         }
