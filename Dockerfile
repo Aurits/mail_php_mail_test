@@ -4,13 +4,14 @@ FROM php:8.2.4-apache
 # Set the working directory to /var/www/html
 WORKDIR /var/www/html
 
-# Copy composer.lock and composer.json to the working directory
-COPY composer.lock composer.json /var/www/html/
-
 # Install any needed packages
 RUN apt-get update && \
-    apt-get install -y git unzip && \
-    docker-php-ext-install pdo pdo_mysql
+    apt-get install -y git unzip libc-client-dev libkrb5-dev libzip-dev && \
+    docker-php-ext-configure imap --with-kerberos --with-imap-ssl && \
+    docker-php-ext-install pdo pdo_mysql imap zip
+
+# Copy composer.lock and composer.json to the working directory
+COPY composer.lock composer.json /var/www/html/
 
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
