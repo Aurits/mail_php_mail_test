@@ -208,13 +208,15 @@ class EmailApiController extends Controller
                 $attachment = $this->processPart($mailbox, $emailId, $part, $index + 1);
 
                 if ($attachment) {
-                    $attachments[] = $attachment;
+                    // Concatenate filename and URL and add to the attachments array
+                    $attachments[] = $attachment['filename'] . ': ' . $attachment['url'];
                 }
             }
         }
 
         return $attachments;
     }
+
 
     private function processPart($mailbox, $emailId, $part, $partNumber)
     {
