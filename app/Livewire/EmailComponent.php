@@ -23,7 +23,7 @@ class EmailComponent extends Component
     private function fetchEmails()
     {
         // Connect to the IMAP server
-        $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}", 'ambrose.alanda@students.mak.ac.ug', 'Gloria11111.@');
+        $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}", '', '');
 
         if ($mailbox) {
             // Fetch emails
