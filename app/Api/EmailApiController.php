@@ -73,6 +73,7 @@ class EmailApiController extends Controller
 
         // Assemble email details
         $emailDetails = [
+            'id' => $emailId, // Add the ID of the message
             'from' => $headers->fromaddress,
             'to' => $headers->toaddress,
             'reply_to' => $headers->reply_toaddress,
