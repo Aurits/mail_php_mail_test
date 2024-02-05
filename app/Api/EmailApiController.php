@@ -9,7 +9,7 @@ use PHPMailer\PHPMailer\Exception;
 
 class EmailApiController extends Controller
 {
-    // Inside your fetchEmails method
+
 
     public function fetchEmails()
     {
@@ -27,22 +27,31 @@ class EmailApiController extends Controller
 
             if ($mailbox) {
                 // Fetch emails
-                $emails = imap_search($mailbox, 'SEEN'); // Only fetch unread emails
+                $Semails = imap_search($mailbox, 'SEEN');
+                $Uemails = imap_search($mailbox, 'UNSEEN');
+                $emails = array_merge($Semails, $Uemails);
                 rsort($emails);
                 $emailData = [];
 
                 if ($emails) {
                     foreach ($emails as $emailId) {
+                        // Determine the status of the email
+                        $status = in_array($emailId, $Uemails) ? 'unseen' : 'seen';
+
                         // Set the 'seen' flag for each fetched email
-                        imap_setflag_full($mailbox, $emailId, "\\Seen");
+                        if ($status === 'unseen') {
+                            imap_setflag_full($mailbox, $emailId, "\\Seen");
+                        }
 
                         // Fetch email details
                         $emailDetails = imap_fetchstructure($mailbox, $emailId);
 
                         // Add email details to the array
-                        $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails);
+                        $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails, $status);
                     }
                 }
+
+
 
                 // Close the connection to the IMAP server
                 imap_close($mailbox);
@@ -65,7 +74,7 @@ class EmailApiController extends Controller
         }
     }
 
-    private function getEmailDetails($mailbox, $emailId, $emailDetails)
+    private function getEmailDetails($mailbox, $emailId, $emailDetails, $status)
     {
         // Fetch email headers
         $headers = imap_headerinfo($mailbox, $emailId);
@@ -86,6 +95,7 @@ class EmailApiController extends Controller
             'subject' => $headers->subject,
             'message' => $body,
             'attachments' => $attachments,
+            'status' => $status,
             // Add other email details as needed
         ];
 
