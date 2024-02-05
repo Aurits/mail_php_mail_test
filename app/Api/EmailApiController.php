@@ -36,10 +36,10 @@ class EmailApiController extends Controller
                 if (!empty($seenEmails) && !empty($unseenEmails)) {
                     // Combine seen and unseen emails into a single array
                     $emails = array_merge($seenEmails, $unseenEmails);
-                } elseif (!empty($seenEmails)) {
+                } elseif (!empty($seenEmails && empty($unsennEmails))) {
                     // If only seen emails exist, set $emails to $seenEmails
                     $emails = $seenEmails;
-                } elseif (!empty($unseenEmails)) {
+                } elseif (!empty($unseenEmails && empty($seenEmails))) {
                     // If only unseen emails exist, set $emails to $unseenEmails
                     $emails = $unseenEmails;
                 } else {
