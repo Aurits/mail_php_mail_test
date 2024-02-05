@@ -61,10 +61,9 @@ class EmailApiController extends Controller
                             // If $unseenEmails is not an array (likely false), set status to 'seen'
                             $status = 'seen';
                         }
-
-
                         // Set the 'seen' flag for each fetched email
                         if ($status === 'unseen') {
+                            imap_setflag_full($mailbox, $emailId, "\\Seen");
                             imap_setflag_full($mailbox, $emailId, "\\Seen");
                         }
 
