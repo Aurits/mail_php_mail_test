@@ -11,33 +11,7 @@ class EmailApiController extends Controller
 {
 
 
-    private function getEmailDetails($mailbox, $emailId, $emailDetails, $status)
-    {
-        // Fetch email headers
-        $headers = imap_headerinfo($mailbox, $emailId);
 
-        // Get email body
-        $body = $this->getBody($mailbox, $emailId, $emailDetails);
-
-        // Get attachments
-        $attachments = $this->getAttachments($mailbox, $emailId, $emailDetails);
-
-        // Assemble email details
-        $emailDetails = [
-            'id' => $emailId, // Add the ID of the message
-            'from' => $headers->fromaddress,
-            'to' => $headers->toaddress,
-            'reply_to' => $headers->reply_toaddress,
-            'date' => date('Y-m-d H:i:s', strtotime($headers->date)),
-            'subject' => $headers->subject,
-            'message' => $body,
-            'attachments' => $attachments,
-            'status' => $status, // Add the status of the email (seen or unseen)
-            // Add other email details as needed
-        ];
-
-        return $emailDetails;
-    }
 
     public function fetchEmails()
     {
@@ -102,6 +76,35 @@ class EmailApiController extends Controller
             // Handle exceptions
             return response()->json(['error' => 'Error fetching emails: ' . $e->getMessage()], 500);
         }
+    }
+
+
+    private function getEmailDetails($mailbox, $emailId, $emailDetails, $status)
+    {
+        // Fetch email headers
+        $headers = imap_headerinfo($mailbox, $emailId);
+
+        // Get email body
+        $body = $this->getBody($mailbox, $emailId, $emailDetails);
+
+        // Get attachments
+        $attachments = $this->getAttachments($mailbox, $emailId, $emailDetails);
+
+        // Assemble email details
+        $emailDetails = [
+            'id' => $emailId, // Add the ID of the message
+            'from' => $headers->fromaddress,
+            'to' => $headers->toaddress,
+            'reply_to' => $headers->reply_toaddress,
+            'date' => date('Y-m-d H:i:s', strtotime($headers->date)),
+            'subject' => $headers->subject,
+            'message' => $body,
+            'attachments' => $attachments,
+            'status' => $status, // Add the status of the email (seen or unseen)
+            // Add other email details as needed
+        ];
+
+        return $emailDetails;
     }
 
 
