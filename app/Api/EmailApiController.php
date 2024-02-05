@@ -58,8 +58,11 @@ class EmailApiController extends Controller
                 $seenEmails = imap_search($mailbox, 'SEEN');
                 $unseenEmails = imap_search($mailbox, 'UNSEEN');
 
+
+                dd($unseenEmails);
+
                 // Combine seen and unseen emails into a single array
-                $emails = array_merge($seenEmails);
+                $emails = array_merge($seenEmails, $unseenEmails);
 
                 rsort($emails);
 
