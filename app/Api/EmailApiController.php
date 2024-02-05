@@ -30,7 +30,7 @@ class EmailApiController extends Controller
             if ($mailbox) {
                 // Fetch both seen and unseen emails
                 $seenEmails = imap_search($mailbox, 'SEEN');
-                $unseenEmails = imap_search($mailbox, 'SEEN');
+                $unseenEmails = imap_search($mailbox, 'UNSEEN');
 
                 // Combine seen and unseen emails into a single array
                 $emails = array_merge($seenEmails, $unseenEmails);
