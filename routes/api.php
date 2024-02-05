@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Api\EmailApiController;
-
+use App\Api\EmailSendController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,3 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::get('/fetch-emails', [EmailApiController::class, 'fetchEmails']);
+
+Route::get('/send-email', [EmailSendController::class, 'sendEmail']);
