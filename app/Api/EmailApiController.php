@@ -36,7 +36,7 @@ class EmailApiController extends Controller
 
 
                 // Combine seen and unseen emails into a single array
-                $emails = array_merge($seenEmails, $unseenEmails);
+                $emails = array_merge($seenEmails ? $seenEmails : [], $unseenEmails ? $unseenEmails : []);
 
                 rsort($emails);
 
