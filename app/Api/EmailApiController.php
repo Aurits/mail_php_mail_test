@@ -11,61 +11,7 @@ class EmailApiController extends Controller
 {
     // Inside your fetchEmails method
 
-    public function fetchEmails()
-    {
-        try {
-            date_default_timezone_set('Africa/Nairobi');
-
-            $request = Request::createFromGlobals();
-
-            // Retrieve username and password from the request
-            $username = $request->input('username');
-            $password = $request->input('password');
-
-            // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password);
-
-            if ($mailbox) {
-                // Fetch emails
-                $emails = imap_search($mailbox, 'SEEN'); // Only fetch unread emails
-                rsort($emails);
-                $emailData = [];
-
-                if ($emails) {
-                    foreach ($emails as $emailId) {
-                        // Set the 'seen' flag for each fetched email
-                        imap_setflag_full($mailbox, $emailId, "\\Seen");
-
-                        // Fetch email details
-                        $emailDetails = imap_fetchstructure($mailbox, $emailId);
-
-                        // Add email details to the array
-                        $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails);
-                    }
-                }
-
-                // Close the connection to the IMAP server
-                imap_close($mailbox);
-
-                // Convert all strings in $emailData to UTF-8
-                $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
-
-                // Strip HTML tags from the message content
-                ////  $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
-
-                // Return the email data as JSON
-                return response()->json(['emails' => $emailData]);
-            } else {
-                // Handle connection error
-                throw new Exception('Unable to connect to the IMAP server.');
-            }
-        } catch (Exception $e) {
-            // Handle exceptions
-            return response()->json(['error' => 'Error fetching emails: ' . $e->getMessage()], 500);
-        }
-    }
-
-    private function getEmailDetails($mailbox, $emailId, $emailDetails)
+    private function getEmailDetails($mailbox, $emailId, $emailDetails, $status)
     {
         // Fetch email headers
         $headers = imap_headerinfo($mailbox, $emailId);
@@ -86,11 +32,75 @@ class EmailApiController extends Controller
             'subject' => $headers->subject,
             'message' => $body,
             'attachments' => $attachments,
+            'status' => $status, // Add the status of the email (seen or unseen)
             // Add other email details as needed
         ];
 
         return $emailDetails;
     }
+
+    public function fetchEmails()
+    {
+        try {
+            date_default_timezone_set('Africa/Nairobi');
+
+            $request = Request::createFromGlobals();
+
+            // Retrieve username and password from the request
+            $username = $request->input('username');
+            $password = $request->input('password');
+
+            // Connect to the IMAP server
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password);
+
+            if ($mailbox) {
+                // Fetch both seen and unseen emails
+                $seenEmails = imap_search($mailbox, 'SEEN');
+                $unseenEmails = imap_search($mailbox, 'UNSEEN');
+
+                // Combine seen and unseen emails into a single array
+                $emails = array_merge($seenEmails, $unseenEmails);
+
+                rsort($emails);
+
+                $emailData = [];
+
+                if ($emails) {
+                    foreach ($emails as $emailId) {
+                        // Determine the status of the email
+                        $status = in_array($emailId, $unseenEmails) ? 'unseen' : 'seen';
+
+                        // Set the 'seen' flag for each fetched email
+                        if ($status === 'unseen') {
+                            imap_setflag_full($mailbox, $emailId, "\\Seen");
+                        }
+
+                        // Fetch email details
+                        $emailDetails = imap_fetchstructure($mailbox, $emailId);
+
+                        // Add email details to the array
+                        $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails, $status);
+                    }
+                }
+
+                // Close the connection to the IMAP server
+                imap_close($mailbox);
+
+                // Convert all strings in $emailData to UTF-8
+                $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
+
+                // Return the email data as JSON
+                return response()->json(['emails' => $emailData]);
+            } else {
+                // Handle connection error
+                throw new Exception('Unable to connect to the IMAP server.');
+            }
+        } catch (Exception $e) {
+            // Handle exceptions
+            return response()->json(['error' => 'Error fetching emails: ' . $e->getMessage()], 500);
+        }
+    }
+
 
     // Add this method to convert a string or array to UTF-8
     private function convertToUTF8Recursive($item)
