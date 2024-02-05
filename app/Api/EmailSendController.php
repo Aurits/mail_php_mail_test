@@ -42,7 +42,7 @@ class EmailSendController extends Controller
             $mail->send();
 
             // Return success response
-            return response()->json(['message' => 'Email sent successfully']);
+            return response()->json(['message' => 'Completed successfully!!!']);
         } catch (Exception $e) {
             // Return error response if an exception occurs
             return response()->json(['error' => 'Error sending email: ' . $e->getMessage()], 500);
