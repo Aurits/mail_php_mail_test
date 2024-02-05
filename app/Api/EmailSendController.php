@@ -13,7 +13,7 @@ class EmailSendController extends Controller
     {
         try {
             // Retrieve email details from the request
-            $to = $request->input('ateraxantonio@gmail.com');
+            $to = $request->input('to');
             $subject = $request->input('subject');
             $message = $request->input('message');
 
@@ -22,7 +22,7 @@ class EmailSendController extends Controller
 
             // SMTP configuration
             $mail->isSMTP();
-            $mail->Host = 'smtp.webmail.mak.ac.ug'; // Your SMTP server
+            $mail->Host = 'webmail.mak.ac.ug'; // Your SMTP server
             $mail->SMTPAuth = true;
             $mail->Username = 'ambrose.alanda@students.mak.ac.ug'; // Your SMTP username
             $mail->Password = 'Gloria11111.@'; // Your SMTP password
