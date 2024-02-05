@@ -28,7 +28,7 @@ class EmailApiController extends Controller
             if ($mailbox) {
                 // Fetch emails
                 $emails = imap_search($mailbox, 'UNSEEN'); // Only fetch unread emails
-                rsort($emails);
+                //rsort($emails);
                 $emailData = [];
 
                 if ($emails) {
