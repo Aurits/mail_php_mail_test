@@ -57,15 +57,19 @@ class EmailApiController extends Controller
                         // Fetch email details
                         $emailDetails = imap_fetchstructure($mailbox, $emailId);
 
-                        // Determine the status of the email
-                        $status = in_array($emailId, $unseenEmails) ? 'unseen' : 'seen';
-
-                        // Fetch email details and process it only if it's unseen
+                        if (is_array($unseenEmails)) {
+                            // Determine the status of the email
+                            $status = in_array($emailId, $unseenEmails) ? 'unseen' : 'seen';
+                        } else {
+                            // If $unseenEmails is not an array (likely false), set status to 'seen'
+                            $status = 'seen';
+                        }
+                        // Set the 'seen' flag for each fetched email
                         if ($status === 'unseen') {
+
+
                             // Add email details to the array
                             $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails, $status);
-
-                            // Set the 'seen' flag for each fetched email
                             imap_setflag_full($mailbox, $emailId, "\\Seen");
                         }
                     }
