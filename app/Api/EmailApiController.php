@@ -54,6 +54,9 @@ class EmailApiController extends Controller
 
                         // Add email details to the array
                         $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails, $status);
+
+                        // Mark email as unread
+                        imap_clearflag_full($mailbox, $emailId, "\\Seen", ST_UID);
                     }
                 }
 
