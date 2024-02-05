@@ -54,8 +54,14 @@ class EmailApiController extends Controller
 
                 if ($emails) {
                     foreach ($emails as $emailId) {
-                        // Determine the status of the email
-                        $status = in_array($emailId, $unseenEmails) ? 'unseen' : 'seen';
+                        if (is_array($unseenEmails)) {
+                            // Determine the status of the email
+                            $status = in_array($emailId, $unseenEmails) ? 'unseen' : 'seen';
+                        } else {
+                            // If $unseenEmails is not an array (likely false), set status to 'seen'
+                            $status = 'seen';
+                        }
+
 
                         // Set the 'seen' flag for each fetched email
                         if ($status === 'unseen') {
