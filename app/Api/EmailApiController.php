@@ -72,7 +72,7 @@ class EmailApiController extends Controller
         $attachments = $this->getAttachments($mailbox, $emailId, $emailDetails);
 
         // Get the read status of the email
-        $readStatus = $this->isEmailRead($mailbox, $emailId);
+        // $readStatus = $this->isEmailRead($mailbox, $emailId);
 
         // Assemble email details including read status
         $emailDetails = [
@@ -84,7 +84,7 @@ class EmailApiController extends Controller
             'subject' => $headers->subject,
             'message' => $body,
             'attachments' => $attachments,
-            'read' => $readStatus, // Add read status to email details
+            //   'read' => $readStatus, // Add read status to email details
 
         ];
 
