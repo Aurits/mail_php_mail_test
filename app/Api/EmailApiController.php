@@ -38,16 +38,12 @@ class EmailApiController extends Controller
                         $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails);
                     }
                 }
-
                 // Close the connection to the IMAP server
                 imap_close($mailbox);
-
                 // Convert all strings in $emailData to UTF-8
                 $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
-
                 // Strip HTML tags from the message content
                 ////  $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
-
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
             } else {
