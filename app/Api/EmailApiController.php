@@ -27,21 +27,22 @@ class EmailApiController extends Controller
 
             if ($mailbox) {
                 // Fetch emails
-                $Semails = imap_search($mailbox, 'SEEN');
-                $Uemails = imap_search($mailbox, 'UNSEEN');
-                $emails = array_merge($Semails, $Uemails);
+                $emails = imap_search($mailbox, 'SEEN');
+                // $Uemails = imap_search($mailbox, 'UNSEEN');
+                //   $emails = array_merge($Semails, $Uemails);
                 rsort($emails);
                 $emailData = [];
 
                 if ($emails) {
                     foreach ($emails as $emailId) {
-                        // Determine the status of the email
-                        $status = in_array($emailId, $Uemails) ? 'unseen' : 'seen';
+                        $status = "";
+                        // // Determine the status of the email
+                        // $status = in_array($emailId, $Uemails) ? 'unseen' : 'seen';
 
-                        // Set the 'seen' flag for each fetched email
-                        if ($status === 'unseen') {
-                            imap_setflag_full($mailbox, $emailId, "\\Seen");
-                        }
+                        // // Set the 'seen' flag for each fetched email
+                        // if ($status === 'unseen') {
+                        //     imap_setflag_full($mailbox, $emailId, "\\Seen");
+                        // }
 
                         // Fetch email details
                         $emailDetails = imap_fetchstructure($mailbox, $emailId);
@@ -60,7 +61,7 @@ class EmailApiController extends Controller
                 $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
 
                 // Strip HTML tags from the message content
-                ////  $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
+
 
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
@@ -74,7 +75,7 @@ class EmailApiController extends Controller
         }
     }
 
-    private function getEmailDetails($mailbox, $emailId, $emailDetails, $status)
+    private function getEmailDetails($mailbox, $emailId, $emailDetails, $status = false)
     {
         // Fetch email headers
         $headers = imap_headerinfo($mailbox, $emailId);
