@@ -32,7 +32,6 @@ class EmailApiController extends Controller
                 $seenEmails = imap_search($mailbox, 'SEEN');
                 $unseenEmails = imap_search($mailbox, 'UNSEEN');
 
-                // Combine seen and unseen emails into a single array
                 // Check if both arrays are not empty before merging
                 if (!empty($seenEmails) && !empty($unseenEmails)) {
                     // Combine seen and unseen emails into a single array
