@@ -71,7 +71,10 @@ class EmailApiController extends Controller
         // Get attachments
         $attachments = $this->getAttachments($mailbox, $emailId, $emailDetails);
 
-        // Assemble email details
+        // Get the read status of the email
+        $readStatus = $this->isEmailRead($mailbox, $emailId);
+
+        // Assemble email details including read status
         $emailDetails = [
             'id' => $emailId, // Add the ID of the message
             'from' => $headers->fromaddress,
@@ -81,11 +84,20 @@ class EmailApiController extends Controller
             'subject' => $headers->subject,
             'message' => $body,
             'attachments' => $attachments,
-            // Add other email details as needed
+            'read' => $readStatus, // Add read status to email details
+
         ];
 
         return $emailDetails;
     }
+
+    private function isEmailRead($mailbox, $emailId)
+    {
+        // Check if the email is marked as read
+        $flags = imap_fetch_overview($mailbox, $emailId, FT_UID)[0]->flags;
+        return strpos($flags, '\\Seen') !== false;
+    }
+
 
     // Add this method to convert a string or array to UTF-8
     private function convertToUTF8Recursive($item)
