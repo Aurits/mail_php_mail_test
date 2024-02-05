@@ -87,7 +87,7 @@ class EmailApiController extends Controller
             'subject' => $headers->subject,
             'message' => $body,
             'attachments' => $attachments,
-            'read' => $isRead, // Add read status to email details
+            // 'read' => $isRead, // Add read status to email details
         ];
 
         return $emailDetails;
