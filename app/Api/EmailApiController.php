@@ -26,23 +26,15 @@ class EmailApiController extends Controller
             $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password);
 
             if ($mailbox) {
-                // Fetch both seen and unseen emails
-                $seenEmails = imap_search($mailbox, 'SEEN');
-                $unseenEmails = imap_search($mailbox, 'UNSEEN');
-
-                // Combine seen and unseen emails into a single array
-                $emails = array_merge($seenEmails, $unseenEmails);
-
+                // Fetch emails
+                $emails = imap_search($mailbox, 'SEEN'); // Only fetch unread emails
                 rsort($emails);
-
                 $emailData = [];
 
                 if ($emails) {
                     foreach ($emails as $emailId) {
                         // Set the 'seen' flag for each fetched email
-                        if (in_array($emailId, $unseenEmails)) {
-                            imap_setflag_full($mailbox, $emailId, "\\Seen");
-                        }
+                        imap_setflag_full($mailbox, $emailId, "\\Seen");
 
                         // Fetch email details
                         $emailDetails = imap_fetchstructure($mailbox, $emailId);
@@ -58,6 +50,9 @@ class EmailApiController extends Controller
                 // Convert all strings in $emailData to UTF-8
                 $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
 
+                // Strip HTML tags from the message content
+                ////  $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
+
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
             } else {
@@ -69,7 +64,6 @@ class EmailApiController extends Controller
             return response()->json(['error' => 'Error fetching emails: ' . $e->getMessage()], 500);
         }
     }
-
 
     private function getEmailDetails($mailbox, $emailId, $emailDetails)
     {
