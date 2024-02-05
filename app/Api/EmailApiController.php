@@ -9,6 +9,8 @@ use PHPMailer\PHPMailer\Exception;
 
 class EmailApiController extends Controller
 {
+    // Inside your fetchEmails method
+
     public function fetchEmails()
     {
         try {
@@ -25,12 +27,15 @@ class EmailApiController extends Controller
 
             if ($mailbox) {
                 // Fetch emails
-                $emails = imap_search($mailbox, 'ALL');
+                $emails = imap_search($mailbox, 'UNSEEN'); // Only fetch unread emails
                 rsort($emails);
                 $emailData = [];
 
                 if ($emails) {
                     foreach ($emails as $emailId) {
+                        // Set the 'seen' flag for each fetched email
+                        imap_setflag_full($mailbox, $emailId, "\\Seen");
+
                         // Fetch email details
                         $emailDetails = imap_fetchstructure($mailbox, $emailId);
 
@@ -38,12 +43,16 @@ class EmailApiController extends Controller
                         $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails);
                     }
                 }
+
                 // Close the connection to the IMAP server
                 imap_close($mailbox);
+
                 // Convert all strings in $emailData to UTF-8
                 $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
+
                 // Strip HTML tags from the message content
                 ////  $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
+
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
             } else {
