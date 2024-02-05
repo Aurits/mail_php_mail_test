@@ -34,8 +34,17 @@ class EmailApiController extends Controller
                         // Fetch email details
                         $emailDetails = imap_fetchstructure($mailbox, $emailId);
 
+                        // Check if the email was previously fetched
+                        $lastFetched = $this->getLastFetchedTime($emailId); // Example function to retrieve last fetched time from database
+
+                        // Mark the email as read if it was fetched before
+                        $isRead = !empty($lastFetched);
+
                         // Add email details to the array
-                        $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails);
+                        $emailData[] = $this->getEmailDetails($mailbox, $emailId, $emailDetails, $isRead);
+
+                        // Update last fetched time for the email
+                        $this->updateLastFetchedTime($emailId); // Example function to update last fetched time in database
                     }
                 }
 
@@ -44,9 +53,6 @@ class EmailApiController extends Controller
 
                 // Convert all strings in $emailData to UTF-8
                 $emailData = array_map([$this, 'convertToUTF8Recursive'], $emailData);
-
-                // Strip HTML tags from the message content
-                ////  $emailData = array_map([$this, 'stripHtmlTagsRecursive'], $emailData);
 
                 // Return the email data as JSON
                 return response()->json(['emails' => $emailData]);
@@ -60,7 +66,7 @@ class EmailApiController extends Controller
         }
     }
 
-    private function getEmailDetails($mailbox, $emailId, $emailDetails)
+    private function getEmailDetails($mailbox, $emailId, $emailDetails, $isRead)
     {
         // Fetch email headers
         $headers = imap_headerinfo($mailbox, $emailId);
@@ -70,9 +76,6 @@ class EmailApiController extends Controller
 
         // Get attachments
         $attachments = $this->getAttachments($mailbox, $emailId, $emailDetails);
-
-        // Get the read status of the email
-        $readStatus = $this->isEmailRead($mailbox, $emailId);
 
         // Assemble email details including read status
         $emailDetails = [
@@ -84,19 +87,12 @@ class EmailApiController extends Controller
             'subject' => $headers->subject,
             'message' => $body,
             'attachments' => $attachments,
-            'read' => $readStatus, // Add read status to email details
-
+            'read' => $isRead, // Add read status to email details
         ];
 
         return $emailDetails;
     }
 
-    private function isEmailRead($mailbox, $emailId)
-    {
-        // Check if the email is marked as read
-        $flags = imap_fetch_overview($mailbox, $emailId, FT_UID)[0]->flags;
-        return strpos($flags, '\\Seen') !== false;
-    }
 
 
     // Add this method to convert a string or array to UTF-8
