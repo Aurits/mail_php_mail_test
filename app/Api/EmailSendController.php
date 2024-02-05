@@ -13,7 +13,7 @@ class EmailSendController extends Controller
     {
         try {
             // Retrieve email details from the request
-            $to = $request->input('to');
+            $to = $request->input('ateraxantonio@gmail.com');
             $subject = $request->input('subject');
             $message = $request->input('message');
 
@@ -30,7 +30,7 @@ class EmailSendController extends Controller
             $mail->Port = 587; // SMTP port (usually 587 for TLS)
 
             // Sender and recipient
-            $mail->setFrom('your_email@example.com', 'Your Name'); // Sender email and name
+            $mail->setFrom('ambrose.alanda@students.mak.ac.ug', 'Ambrose Alanda'); // Sender email and name
             $mail->addAddress($to); // Recipient email
 
             // Email content
