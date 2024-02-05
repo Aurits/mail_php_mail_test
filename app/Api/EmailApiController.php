@@ -29,7 +29,7 @@ class EmailApiController extends Controller
                 // Fetch emails
                 $Semails = imap_search($mailbox, 'SEEN');
                 $Uemails = imap_search($mailbox, 'UNSEEN');
-                $emails = array_merge($Semails, $Uemails);
+                $emails = array_merge($Uemails);
                 rsort($emails);
                 $emailData = [];
 
