@@ -9,6 +9,10 @@ use PHPMailer\PHPMailer\Exception;
 
 class EmailApiController extends Controller
 {
+
+
+
+
     public function fetchEmails()
     {
         try {
@@ -21,7 +25,7 @@ class EmailApiController extends Controller
             $password = $request->input('password');
 
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password, 1);
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password);
 
             if ($mailbox) {
                 // Fetch both seen and unseen emails
