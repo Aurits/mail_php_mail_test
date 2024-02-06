@@ -116,7 +116,7 @@ class EmailApiController extends Controller
             'message' => $body,
             'attachments' => $attachments,
             'status' => $status, // Add the status of the email (seen or unseen)
-            // Add other email details as needed
+
         ];
 
         return $emailDetails;
