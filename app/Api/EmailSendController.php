@@ -25,7 +25,7 @@ class EmailSendController extends Controller
             $mail->Host = 'webmail.mak.ac.ug'; // Your SMTP server
             $mail->SMTPAuth = true;
             $mail->Username = 'ambrose.alanda@students.mak.ac.ug'; // Your SMTP username
-            $mail->Password = 'Gloria11111.@'; // Your SMTP password
+            $mail->Password = '...............'; // Your SMTP password
             $mail->SMTPSecure = 'tls'; // TLS encryption
             $mail->Port = 587; // SMTP port (usually 587 for TLS)
 
