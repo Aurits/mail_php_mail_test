@@ -21,7 +21,7 @@ class EmailApiController extends Controller
             $password = $request->input('password');
 
             // Connect to the IMAP server
-            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password);
+            $mailbox = imap_open("{webmail.mak.ac.ug:993/imap/ssl}INBOX", $username, $password, 1);
 
             if ($mailbox) {
                 // Fetch both seen and unseen emails
