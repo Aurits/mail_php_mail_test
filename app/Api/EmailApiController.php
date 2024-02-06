@@ -9,10 +9,6 @@ use PHPMailer\PHPMailer\Exception;
 
 class EmailApiController extends Controller
 {
-
-
-
-
     public function fetchEmails()
     {
         try {
