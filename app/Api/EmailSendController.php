@@ -18,11 +18,13 @@ class EmailSendController extends Controller
             $message = $request->input('message');
             $fromEmail = $request->input('from_email');
             $fromName = $request->input('from_name');
-            $smtpHost = $request->input('smtp_host');
             $smtpUsername = $request->input('smtp_username');
             $smtpPassword = $request->input('smtp_password');
-            $smtpSecure = $request->input('smtp_secure');
-            $smtpPort = $request->input('smtp_port');
+
+            // Static SMTP configuration
+            $smtpHost = 'webmail.mak.ac.ug';
+            $smtpSecure = 'tls';
+            $smtpPort = 587;
 
             // Initialize PHPMailer
             $mail = new PHPMailer(true);
