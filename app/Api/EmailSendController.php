@@ -16,22 +16,29 @@ class EmailSendController extends Controller
             $to = $request->input('to');
             $subject = $request->input('subject');
             $message = $request->input('message');
+            $fromEmail = $request->input('from_email');
+            $fromName = $request->input('from_name');
+            $smtpHost = $request->input('smtp_host');
+            $smtpUsername = $request->input('smtp_username');
+            $smtpPassword = $request->input('smtp_password');
+            $smtpSecure = $request->input('smtp_secure');
+            $smtpPort = $request->input('smtp_port');
 
             // Initialize PHPMailer
             $mail = new PHPMailer(true);
 
             // SMTP configuration
             $mail->isSMTP();
-            $mail->Host = 'webmail.mak.ac.ug'; // Your SMTP server
+            $mail->Host = $smtpHost;
             $mail->SMTPAuth = true;
-            $mail->Username = 'ambrose.alanda@students.mak.ac.ug'; // Your SMTP username
-            $mail->Password = '...............'; // Your SMTP password
-            $mail->SMTPSecure = 'tls'; // TLS encryption
-            $mail->Port = 587; // SMTP port (usually 587 for TLS)
+            $mail->Username = $smtpUsername;
+            $mail->Password = $smtpPassword;
+            $mail->SMTPSecure = $smtpSecure;
+            $mail->Port = $smtpPort;
 
             // Sender and recipient
-            $mail->setFrom('ambrose.alanda@students.mak.ac.ug', 'Ambrose Alanda'); // Sender email and name
-            $mail->addAddress($to); // Recipient email
+            $mail->setFrom($fromEmail, $fromName);
+            $mail->addAddress($to);
 
             // Email content
             $mail->isHTML(true);
@@ -42,7 +49,7 @@ class EmailSendController extends Controller
             $mail->send();
 
             // Return success response
-            return response()->json(['message' => 'Completed successfully!!!']);
+            return response()->json(['message' => 'Email sent successfully!']);
         } catch (Exception $e) {
             // Return error response if an exception occurs
             return response()->json(['error' => 'Error sending email: ' . $e->getMessage()], 500);
