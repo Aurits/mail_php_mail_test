@@ -47,6 +47,8 @@ class EmailApiController extends Controller
                     $emails = [];
                 }
 
+                // Limit the emails to 500
+                $emails = array_slice($emails, 0, 500);
 
                 rsort($emails);
 
