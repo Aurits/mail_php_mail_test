@@ -121,7 +121,7 @@ class EmailApiController extends Controller
 
         return $emailDetails;
     }
-
+    //
 
     // Add this method to convert a string or array to UTF-8
     private function convertToUTF8Recursive($item)
