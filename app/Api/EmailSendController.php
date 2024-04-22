@@ -22,7 +22,7 @@ class EmailSendController extends Controller
             $smtpPassword = $request->input('smtp_password');
 
             // Static SMTP configuration
-            $smtpHost = 'smtp.gmail.com';
+            $smtpHost = 'webmail.mak.ac.ug';
             $smtpSecure = 'tls';
             $smtpPort = 587;
 
